@@ -11,6 +11,7 @@ contract HashStorage {
     // Function to store the hash
     function storeHash(string memory _ipfsHash) public {
         // Store the hash associated with the user's address
+        //userHashes[msg.sender].push(_ipfsHash);
         userHashes[msg.sender] = _ipfsHash;
         emit HashStored(msg.sender, _ipfsHash);
     }

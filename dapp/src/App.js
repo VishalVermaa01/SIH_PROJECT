@@ -5,22 +5,13 @@ import HashStorage from './contract/HashStorage.json';
 import SHA256 from 'crypto-js/sha256';
 import axios from 'axios';
 
-// IPFS Client
-const ipfs = create('https://ipfs.infura.io:5001/api/v0');
-
 function App() {
   const [jsonInput, setJsonInput] = useState('');
-  // const [account, setAccount] = useState('');
-  // const [contract, setContract] = useState(null);
-  // const [provider, setProvider] = useState(null);
-
   const [account, setAccount] = useState("");
   const [contract, setContract] = useState(null);
   const [provider, setProvider] = useState(null);
   const [file, setFile] = useState(null);
   const [fileName, setFileName] = useState("No Hash here");
-
-
 
   useEffect(() => {
     const { ethereum } = window;
@@ -58,149 +49,132 @@ function App() {
 
 
 
-  const contractAddress = "0x096025BF9Cc091702ACA28F268ABba82c30418D2"; // Replace with your contract address
+  // const contractAddress = "0x096025BF9Cc091702ACA28F268ABba82c30418D2";
 
-  // Function to handle input
   const handleInput = (event) => {
     setJsonInput(event.target.value);
   };
 
 
 
-  const apiPinata = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySW5mb3JtYXRpb24iOnsiaWQiOiI3OWQzODViNC0wNjU5LTQwMmMtYmJiOS1mNTRkOGE5MTE5OTciLCJlbWFpbCI6InJlY3J1aXNlcjZAZ21haWwuY29tIiwiZW1haWxfdmVyaWZpZWQiOnRydWUsInBpbl9wb2xpY3kiOnsicmVnaW9ucyI6W3siZGVzaXJlZFJlcGxpY2F0aW9uQ291bnQiOjEsImlkIjoiRlJBMSJ9LHsiZGVzaXJlZFJlcGxpY2F0aW9uQ291bnQiOjEsImlkIjoiTllDMSJ9XSwidmVyc2lvbiI6MX0sIm1mYV9lbmFibGVkIjpmYWxzZSwic3RhdHVzIjoiQUNUSVZFIn0sImF1dGhlbnRpY2F0aW9uVHlwZSI6InNjb3BlZEtleSIsInNjb3BlZEtleUtleSI6IjUxYTU2NTNmODQ3YzE1NjljZWY5Iiwic2NvcGVkS2V5U2VjcmV0IjoiYzNiYzBkZTkyMjBhNzVjNjMwODYyZDg5M2Y3ZmI5NDIyMGE0OGI5MTA0ZTM4ZDgzZDY2ZDkyOWM4NzlkY2UyOSIsImV4cCI6MTc1NzE2ODA4NX0.uxLv3gb-pRLJIHhpTRVT1RnTp6R5TK58aTGhmPZLnUU"  // Function to upload the hash to IPFS and store it on the blockchain
+  // const apiPinata = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySW5mb3JtYXRpb24iOnsiaWQiOiI3OWQzODViNC0wNjU5LTQwMmMtYmJiOS1mNTRkOGE5MTE5OTciLCJlbWFpbCI6InJlY3J1aXNlcjZAZ21haWwuY29tIiwiZW1haWxfdmVyaWZpZWQiOnRydWUsInBpbl9wb2xpY3kiOnsicmVnaW9ucyI6W3siZGVzaXJlZFJlcGxpY2F0aW9uQ291bnQiOjEsImlkIjoiRlJBMSJ9LHsiZGVzaXJlZFJlcGxpY2F0aW9uQ291bnQiOjEsImlkIjoiTllDMSJ9XSwidmVyc2lvbiI6MX0sIm1mYV9lbmFibGVkIjpmYWxzZSwic3RhdHVzIjoiQUNUSVZFIn0sImF1dGhlbnRpY2F0aW9uVHlwZSI6InNjb3BlZEtleSIsInNjb3BlZEtleUtleSI6IjUxYTU2NTNmODQ3YzE1NjljZWY5Iiwic2NvcGVkS2V5U2VjcmV0IjoiYzNiYzBkZTkyMjBhNzVjNjMwODYyZDg5M2Y3ZmI5NDIyMGE0OGI5MTA0ZTM4ZDgzZDY2ZDkyOWM4NzlkY2UyOSIsImV4cCI6MTc1NzE2ODA4NX0.uxLv3gb-pRLJIHhpTRVT1RnTp6R5TK58aTGhmPZLnUU"  // Function to upload the hash to IPFS and store it on the blockchain
+  const userfilename = "File name"
   const storeHashOnBlockchain = async () => {
     try {
       // Convert JSON input to SHA-256 hash
       const hash = SHA256(jsonInput).toString();
       console.log('SHA-256 Hash:', hash);
+
+      const data = JSON.stringify({
+        pinataOptions: {
+          cidVersion: 1,
+        },
+        pinataMetadata: {
+          name: userfilename,
+        },
+        pinataContent: {
+          hash: hash
+        }
+      });
+
       const resFile = await axios({
         method: "post",
-        url: "https://api.pinata.cloud/pinning/pinFileToIPFS",
-        data: hash,
+        url: "https://api.pinata.cloud/pinning/pinJSONToIPFS",
+        data: data,
         headers: {
-          pinata_api_key: `51a5653f847c1569cef9`,
-          pinata_secret_api_key: `c3bc0de9220a75c630862d893f7fb94220a48b9104e38d83d66d929c879dce29`,
-          "Content-Type": "text",
+          pinata_api_key: '51a5653f847c1569cef9',
+          pinata_secret_api_key: 'c3bc0de9220a75c630862d893f7fb94220a48b9104e38d83d66d929c879dce29',
+          "Content-Type": 'application/json', //text
         },
       });
     
-    console.log("after res file",resFile);
-    // const ImgHash = `ipfs://${resFile.data.IpfsHash}`;
-    const ImgHash = `https://gateway.pinata.cloud/ipfs/${resFile.data.IpfsHash}`;
-    console.log(ImgHash,account);
-    await contract.add(account, ImgHash);
-    console.log("after contract add");
-    
+    console.log("ipfs response:",resFile.data);
 
-    setFile(null);
-    setFile("No image selected");
-    alert("file Uploaded");
+    const ipfsHash = `https://gateway.pinata.cloud/ipfs/${resFile.data.IpfsHash}`;
+  
+    await contract.storeHash(ipfsHash);
+    console.log("url",ipfsHash);
 
-      // Upload the hash to IPFS
-      // const added = await ipfs.add(hash);
-      // const ipfsUrl = `https://ipfs.infura.io/ipfs/${added.path}`;
-      // console.log('IPFS URL:', ipfsUrl);
-
-      // // Store the IPFS URL in the smart contract
-      // const tx = await contract.storeHash(ipfsUrl);
-      // await tx.wait();
-      // console.log('Hash stored successfully on blockchain!');
-
+    console.log("Hash stored successfully on blockchain!");
     } catch (error) {
       console.error('Error uploading hash:', error);
     }
   };
 
-
-
-  const handleSubmit = async (event) => {
+  const retrieveFile = (event) => {
+    setFileName(event.target.value);
     event.preventDefault();
-    if (file) {
-      try {
-        // const formData = new FormData();
-        // formData.append("file", file);
-        // console.log(jsonInput)
-        // const hash = SHA256(jsonInput).toString();
-        // console.log('SHA-256 Hash:', hash);
-        // file = hash;
-        // console.log("file here",file)
+  };
 
-          const resFile = await axios({
-            method: "post",
-            url: "https://api.pinata.cloud/pinning/pinFileToIPFS",
-            data: file,
-            headers: {
-              pinata_api_key: `51a5653f847c1569cef9`,
-              pinata_secret_api_key: `c3bc0de9220a75c630862d893f7fb94220a48b9104e38d83d66d929c879dce29`,
-              "Content-Type": "multipart/form-data",
-            },
-          });
-        
-        console.log("after res file",resFile);
-        // const ImgHash = `ipfs://${resFile.data.IpfsHash}`;
-        const ImgHash = `https://gateway.pinata.cloud/ipfs/${resFile.data.IpfsHash}`;
-        console.log(ImgHash,account);
-        await contract.add(account, ImgHash);
-        console.log("after contract add");
-        
 
-        setFile(null);
-        setFile("No image selected");
-        alert("file Uploaded");
-      } catch (error) {
-        console.log(error);
+  // -------------------------- Retrival --------------------------------
+  const [data, setData] = useState("");
+
+  const getdata = async () => {
+    let dataArray;
+    const Otheraddress = document.querySelector(".address-input").value;
+    try {
+      if (Otheraddress) {
+        dataArray = await contract.getHash(Otheraddress);
+        console.log("here ",dataArray);
+      } else {
+        dataArray = await contract.getHash(account);
       }
+    } catch (e) {
+      alert("You don't have access");
+    }
+    const isEmpty = Object.keys(dataArray).length === 0;
+ 
+
+    if (!isEmpty) {
+      const str = dataArray.toString();
+      const str_array = str.split(",");
+      const hashes = str_array.map((item, i) => {
+        return (
+          <a href={item} key={i} target="_blank" rel="noreferrer">
+          <div>{item}</div>
+          </a>
+        );
+      });
+      setData(hashes);
+    } else {
+      alert("No hash to display");
     }
   };
 
-  const retrieveFile = (event) => {
-    // const data = event.target.files[0];
-    // const reader = new window.FileReader();
-    // reader.readAsArrayBuffer(data);
-    // reader.onloadend = () => {
-    //   setFile(event.target.files[0]);
-    // };
-    setFileName(event.target.value);
-    // setJsonInput(event.target.value);
-    event.preventDefault();
-  };
+  // --------------------------------------------------------------------
+  // ==========================
+  // --------------------------- ALLOW ----------------------------------
 
+
+  // --------------------------- Revoke ---------------------------------
 
   return (
+<>
     <div>
-      <div className="top">
-      <form action="submit" className="form" onSubmit={handleSubmit}>
-        <label htmlFor="file-upload" className="choose">
-          Choose Image
-        </label>
-        <input
-          disabled={!account}
-          type="file"
-          id="file-upload"
-          name="data"
-          onChange={retrieveFile}
-        ></input>
-        <button type="submit" className="upload-button" disabled={!file}>
-          Upload File
-        </button>
-      </form>
-    </div>
-
       <h1>Store JSON Hash on IPFS and Blockchain</h1>
       <textarea
         rows="10"
         cols="50"
         placeholder="Enter JSON input here..."
-        value={jsonInput}
+        value={jsonInput} 
         onChange={handleInput}
       />
-      <br />
-      {/* <button onClick={connectWallet}>Connect Wallet</button> */}
-      <br />
       <button onClick={storeHashOnBlockchain}>Store Hash</button>
-      <br />
       <p>Account: {account ? account : 'Not connected'}</p>
     </div>
+    <div>
+      <div className="hash-list">{data}</div>
+      <input
+        type="text"
+        placeholder="Enter Address"
+        className='address-input'
+      ></input>
+      <button className="display-button" onClick={getdata}>
+        Get Data
+      </button>
+    </div>
+    </>
   );
 }
 
